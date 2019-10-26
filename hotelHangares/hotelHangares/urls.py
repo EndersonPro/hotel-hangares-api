@@ -19,6 +19,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
 from apps.AdminHotel import views
+from rest_framework_simplejwt.views import TokenRefreshView
+from hotelHangares.hotelHangares.custom.jwt import MyTokenObtainPairSerializer
+
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -27,7 +30,9 @@ router.register(r'groups', views.GroupViewSet)
 urlpatterns = [
     path('api/v1.0/', include(router.urls)),
     path('admin/', admin.site.urls),
+    path('api/v1.0/token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/v1.0/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('/', admin.site.urls),
-    path('',include(('apps.AdminHotel.urls','adminHotel'))),
+    path('', include(('apps.AdminHotel.urls', 'adminHotel'))),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
