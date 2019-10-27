@@ -1,4 +1,6 @@
 from django.db import models
+# from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 
@@ -16,15 +18,15 @@ class TipoUsuario(models.Model):
     def __str__(self):
         return self.nombre
 
-class Usuario(models.Model):
-    id = models.AutoField(primary_key = True)
+class Usuario(AbstractUser):
+    # id = models.AutoField(primary_key = True)
     nombre = models.CharField(max_length = 100, null = False,blank = False)
-    tipoUsuario = models.OneToOneField(TipoUsuario,on_delete=models.DO_NOTHING)
-    password = models.CharField(max_length = 100, null = False,blank = False)
+    tipoUsuario = models.OneToOneField(TipoUsuario,on_delete=models.DO_NOTHING,null=True)
+    # password = models.CharField(max_length = 100, null = False,blank = False)
     correo = models.EmailField(blank = False, null = False)
     imagen = models.URLField(max_length = 255, blank = False, null= False, default="https://www.info-computer.com/blog/wp-content/uploads/2018/04/fotoinicio.jpg")
-    activo = models.BooleanField(default = True)
-    creado = models.DateField(auto_now = False,auto_now_add = True)
+    # activo = models.BooleanField(default = True)
+    # creado = models.DateField(auto_now = False,auto_now_add = True)
 
     class Meta:
         verbose_name = 'Usuario'
