@@ -20,20 +20,21 @@ class TipoUsuario(models.Model):
 
 class Usuario(AbstractUser):
     # id = models.AutoField(primary_key = True)
-    nombres = models.CharField(max_length = 100, null = False,blank = False)
-    tipoUsuario = models.OneToOneField(TipoUsuario,on_delete=models.DO_NOTHING,null=True)
+    # nombre = models.CharField(max_length = 100, null = False,blank = False)
     # password = models.CharField(max_length = 100, null = False,blank = False)
-    correo = models.EmailField(blank = False, null = False)
-    foto_perfil = models.URLField(max_length = 255, blank = False, null= False, default="https://www.info-computer.com/blog/wp-content/uploads/2018/04/fotoinicio.jpg")
+    # correo = models.EmailField(blank = False, null = False)
     # activo = models.BooleanField(default = True)
     # creado = models.DateField(auto_now = False,auto_now_add = True)
+
+    tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.DO_NOTHING, null=False, default=3)
+    foto_perfil = models.URLField(max_length = 255, blank = False, null= False, default="https://www.info-computer.com/blog/wp-content/uploads/2018/04/fotoinicio.jpg")
 
     class Meta:
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
 
     def __str__(self):
-        return self.nombre
+        return f"{self.first_name} {self.last_name}"
 
 class TipoHabitacion(models.Model):
     id = models.AutoField(primary_key = True)
@@ -51,11 +52,11 @@ class TipoHabitacion(models.Model):
 
 class Habitacion(models.Model):
     id = models.AutoField(primary_key = True)
-    tipoHabitacion =  models.OneToOneField(TipoHabitacion,on_delete=models.DO_NOTHING)
+    tipoHabitacion =  models.ForeignKey(TipoHabitacion,on_delete=models.DO_NOTHING, null=False)
     numero = models.IntegerField(blank=True, null=True)
     piso = models.IntegerField(blank=True, null=True)
     descripcion = models.CharField(max_length = 110, blank = False, null = False)
-    precio = models.DecimalField(max_digits=6, decimal_places=2)
+    precio = models.DecimalField(max_digits=20, decimal_places=2)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
 
@@ -68,8 +69,8 @@ class Habitacion(models.Model):
 
 class ImagenHabitacion(models.Model):
     id = models.AutoField(primary_key = True)
-    imagen = models.ImageField(upload_to = 'img/habitaciones/', default = 'img/habitaciones/no-img.jpg')
-    habitacion = models.ForeignKey(Habitacion, on_delete=models.CASCADE)
+    imagen = models.URLField(max_length = 255, blank = False, null= False, default="https://www.parkpiolets.com/content/imgsxml/galerias/panel_habitaciones/6/des-0016-pioletspark-doblepremium320.jpg")
+    habitacion = models.ForeignKey(Habitacion, on_delete=models.CASCADE, null=False)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
 
@@ -115,8 +116,8 @@ class Reserva(models.Model):
 class Factura(models.Model):
     id = models.AutoField(primary_key = True)
     reserva = models.OneToOneField(Reserva,on_delete=models.DO_NOTHING)
-    total = models.DecimalField(max_digits=6, decimal_places=2)
-    descuento = models.DecimalField(max_digits=6, decimal_places=2)
+    total = models.DecimalField(max_digits=20, decimal_places=2)
+    descuento = models.DecimalField(max_digits=20, decimal_places=2)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
 
