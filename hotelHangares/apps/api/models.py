@@ -20,10 +20,10 @@ class TipoUsuario(models.Model):
 
 class Usuario(AbstractUser):
     # id = models.AutoField(primary_key = True)
-    nombre = models.CharField(max_length = 100, null = False,blank = False)
+    nombres = models.CharField(max_length = 100, null = False,blank = False)
     tipoUsuario = models.OneToOneField(TipoUsuario,on_delete=models.DO_NOTHING,null=True)
     # password = models.CharField(max_length = 100, null = False,blank = False)
-    # correo = models.EmailField(blank = False, null = False)
+    correo = models.EmailField(blank = False, null = False)
     foto_perfil = models.URLField(max_length = 255, blank = False, null= False, default="https://www.info-computer.com/blog/wp-content/uploads/2018/04/fotoinicio.jpg")
     # activo = models.BooleanField(default = True)
     # creado = models.DateField(auto_now = False,auto_now_add = True)
