@@ -98,10 +98,11 @@ class Comodidad(models.Model):
     
 class Reserva(models.Model):
     id = models.AutoField(primary_key = True)
-    usuario = models.OneToOneField(Usuario,on_delete=models.DO_NOTHING)
-    habitaciones = models.ManyToManyField(Habitacion)
-    diaInicio = models.DateField(null = False,blank = False)
-    diaFin = models.DateField(null = False,blank = False)
+    responsable = models.ForeignKey(Usuario, related_name='responsable',on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(Usuario, related_name='cliente', on_delete=models.DO_NOTHING)
+    habitaciones = models.ManyToManyField(Habitacion, through='HabitacionAsignada')
+    fechaInicio = models.DateField(null = False,blank = False)
+    fechaFin = models.DateField(null = False,blank = False)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
 
@@ -112,11 +113,26 @@ class Reserva(models.Model):
     def __str__(self):
         return self.usuario
 
+class HabitacionAsignada(models.Model):
+
+    reserva = models.ForeignKey(Reserva, on_delete=models.DO_NOTHING)
+    habitacion = models.ForeignKey(Habitacion, on_delete=models.DO_NOTHING)
+    precioVenta = models.DecimalField(max_digits=20, decimal_places=2)
+    activo = models.BooleanField( default = True)
+    creado = models.DateField(auto_now = False,auto_now_add = True)
+
+    class Meta:
+        verbose_name = 'Habitacion Asignada'
+        verbose_name_plural = 'Habitaciones Asignadas'
+
+    def __str__(self):
+        return f"Habitacion:{self.habitacion}, Reserva: {self.reserva}"
+
 
 class Factura(models.Model):
     id = models.AutoField(primary_key = True)
     reserva = models.OneToOneField(Reserva,on_delete=models.DO_NOTHING)
-    total = models.DecimalField(max_digits=20, decimal_places=2)
+    fecha = models.DateField(null = False,blank = False)
     descuento = models.DecimalField(max_digits=20, decimal_places=2)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
@@ -126,5 +142,4 @@ class Factura(models.Model):
         verbose_name_plural = 'Facturas'
 
     def __str__(self):
-        return self.total
-
+        return f"{self.id} {self.fecha}"

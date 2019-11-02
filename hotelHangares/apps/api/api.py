@@ -1,13 +1,13 @@
 # from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, status
-from .serializers import  UsuarioSerializer
+from .serializers import  UsuarioSerializer, ChangePasswordSerializer, HabitacionSerializer, ReservaSerializer, HabitacionAsignadaSerializer, ComodidadSerializer, TipoHabitacionSerializer, FacturaSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import make_password
-from .models import Usuario
+from .models import Usuario, Habitacion, Reserva, HabitacionAsignada, Comodidad, TipoHabitacion, Factura
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UsuarioViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -16,17 +16,76 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer
 
     def perform_create(self, serializer):
+
         password = make_password(self.request.data['password'])
         serializer.save(password=password)
 
     def perform_update(self, serializer):
-        password = make_password(self.request.data['password'])
-        serializer.save(password=password)
 
+        if "password" in self.request.data.keys():
+            password = make_password(self.request.data['password'])
+            serializer.save(password=password)
+        else:
+            serializer.save()
 
-# class GroupViewSet(viewsets.ModelViewSet):
-#     """
-#     API endpoint that allows groups to be viewed or edited.
-#     """
-#     queryset = Group.objects.all()
-#     serializer_class = GroupSerializer
+class ChangePasswordView(viewsets.ModelViewSet):
+
+    serializer_class = ChangePasswordSerializer
+    model = Usuario
+    queryset = Usuario.objects.all()
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        obj = self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+
+            if not self.object.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password"]}, status=status.HTTP_400_BAD_REQUEST)
+
+            self.object.set_password(serializer.data.get("new_password"))
+            self.object.save()
+            return Response("Success", status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TipoHabitacionViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = TipoHabitacion.objects.all()
+    serializer_class = TipoHabitacionSerializer
+
+class HabitacionViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = Habitacion.objects.all()
+    serializer_class = HabitacionSerializer
+
+class ReservaViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = Reserva.objects.all()
+    serializer_class = ReservaSerializer
+
+class HabitacionAsignadaViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = HabitacionAsignada.objects.all()
+    serializer_class = HabitacionAsignadaSerializer
+
+class ComodidadViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = Comodidad.objects.all()
+    serializer_class = ComodidadSerializer
+
+class FacturaViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = Comodidad.objects.all()
+    serializer_class = FacturaSerializer
