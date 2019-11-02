@@ -87,5 +87,5 @@ class ComodidadViewSet(viewsets.ModelViewSet):
 class FacturaViewSet(viewsets.ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
-    queryset = Comodidad.objects.all()
+    queryset = Factura.objects.all()
     serializer_class = FacturaSerializer
