@@ -1,7 +1,7 @@
 # from django.contrib.auth.models import User, Group
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from .models import Usuario, Habitacion, TipoHabitacion, Reserva, HabitacionAsignada, Comodidad, Factura
+from .models import Usuario, Habitacion, TipoHabitacion, Reserva, HabitacionReservada, Comodidad, Factura
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -31,7 +31,7 @@ class HabitacionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Habitacion
-        fields = ['id','numero','tipoHabitacion','piso','descripcion','precio','activo','creado']
+        fields = ['id','numero','tipoHabitacion','piso','descripcion','precio','reservada','activo','creado']
 
 class ReservaSerializer(serializers.ModelSerializer):
 
@@ -39,10 +39,10 @@ class ReservaSerializer(serializers.ModelSerializer):
         model = Reserva
         fields = ['id', 'responsable', 'usuario', 'habitaciones', 'fechaInicio', 'fechaFin','activo','creado']
 
-class HabitacionAsignadaSerializer(serializers.ModelSerializer):
+class HabitacionReservadaSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = HabitacionAsignada
+        model = HabitacionReservada
         fields = ['id', 'reserva', 'habitacion', 'precioVenta', 'activo', 'creado']
 
 class ComodidadSerializer(serializers.ModelSerializer):
