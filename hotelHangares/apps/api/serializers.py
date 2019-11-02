@@ -1,7 +1,7 @@
 # from django.contrib.auth.models import User, Group
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-from .models import Usuario, Habitacion, TipoHabitacion, Reserva, HabitacionReservada, Comodidad, Factura
+from .models import Usuario, Habitacion, ImagenHabitacion, TipoHabitacion, Reserva, HabitacionReservada, Comodidad, Factura
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -32,6 +32,12 @@ class HabitacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Habitacion
         fields = ['id','numero','tipoHabitacion','piso','descripcion','precio','reservada','activo','creado']
+
+class ImagenHabitacionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ImagenHabitacion
+        fields = ['id', 'imagen', 'habitacion', 'activo', 'creado']
 
 class ReservaSerializer(serializers.ModelSerializer):
 

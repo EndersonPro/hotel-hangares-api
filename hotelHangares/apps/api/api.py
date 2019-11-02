@@ -1,11 +1,11 @@
 # from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, status
-from .serializers import  UsuarioSerializer, ChangePasswordSerializer, HabitacionSerializer, ReservaSerializer, HabitacionReservadaSerializer, ComodidadSerializer, TipoHabitacionSerializer, FacturaSerializer
+from .serializers import  UsuarioSerializer, ChangePasswordSerializer, HabitacionSerializer, ImagenHabitacionSerializer, ReservaSerializer, HabitacionReservadaSerializer, ComodidadSerializer, TipoHabitacionSerializer, FacturaSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
-from .models import Usuario, Habitacion, Reserva, HabitacionReservada, Comodidad, TipoHabitacion, Factura
+from .models import Usuario, Habitacion, ImagenHabitacion, Reserva, HabitacionReservada, Comodidad, TipoHabitacion, Factura
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
@@ -76,6 +76,17 @@ class HabitacionViewSet(viewsets.ModelViewSet):
         else:
             return Habitacion.objects.all()
 
+class ImagenHabitacionViewSet(viewsets.ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = ImagenHabitacion.objects.all()
+    serializer_class = ImagenHabitacionSerializer
+
+    def get_queryset(self):
+        if "habitacion" in self.request.data.keys():
+            return ImagenHabitacion.objects.filter(habitacion = self.request.data['habitacion'])
+        else:
+            return ImagenHabitacion.objects.all()
 
 class ReservaViewSet(viewsets.ModelViewSet):
 
