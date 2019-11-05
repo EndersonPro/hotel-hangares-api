@@ -1,0 +1,15 @@
+- model: api.TipoUsuario
+  pk: 1
+  fields:
+    nombre: John
+    descripcion: Lennon
+- model: api.TipoUsuario
+  pk: 2
+  fields:
+    nombre: John
+    descripcion: Lennon
+- model: api.TipoUsuario
+  pk: 3
+  fields:
+    nombre: John
+    descripcion: Lennon

@@ -2,6 +2,8 @@ from django.db import models
 # from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 
+from django.utils import timezone
+
 # Create your models here.
 
 class TipoUsuario(models.Model):
@@ -9,7 +11,8 @@ class TipoUsuario(models.Model):
     nombre = models.CharField(max_length = 100, null = False,blank = False)
     descripcion = models.CharField(max_length = 110, blank = False, null = False)
     activo = models.BooleanField(default = True)
-    creado = models.DateField(auto_now = False,auto_now_add = True)
+    # al final no nos importa mucho cuando se creo el tipo de usuario
+    creado = models.DateField(default = timezone.now)
 
     class Meta:
         verbose_name = 'Tipo Usuario'
