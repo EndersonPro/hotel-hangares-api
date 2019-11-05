@@ -33,8 +33,8 @@ class Usuario(AbstractUser):
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
 
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+    # def __str__(self):
+    #     return f"{self.first_name} {self.last_name}"
 
 class TipoHabitacion(models.Model):
     id = models.AutoField(primary_key = True)
@@ -57,6 +57,7 @@ class Habitacion(models.Model):
     piso = models.IntegerField(blank=True, null=True)
     descripcion = models.CharField(max_length = 110, blank = False, null = False)
     precio = models.DecimalField(max_digits=20, decimal_places=2)
+    reservada = models.BooleanField(default = False)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
 
@@ -65,7 +66,7 @@ class Habitacion(models.Model):
         verbose_name_plural = 'Habitaciones'
 
     def __str__(self):
-        return self.numero
+        return f"{self.numero}"
 
 class ImagenHabitacion(models.Model):
     id = models.AutoField(primary_key = True)
@@ -79,7 +80,7 @@ class ImagenHabitacion(models.Model):
         verbose_name_plural = 'Imagenes de Habitacion'
 
     def __str__(self):
-        return self.habitacion
+        return f"{self.habitacion}"
 
 class Comodidad(models.Model):
     id = models.AutoField(primary_key = True)
@@ -98,10 +99,11 @@ class Comodidad(models.Model):
     
 class Reserva(models.Model):
     id = models.AutoField(primary_key = True)
-    usuario = models.OneToOneField(Usuario,on_delete=models.DO_NOTHING)
-    habitaciones = models.ManyToManyField(Habitacion)
-    diaInicio = models.DateField(null = False,blank = False)
-    diaFin = models.DateField(null = False,blank = False)
+    responsable = models.ForeignKey(Usuario, related_name='responsable',on_delete=models.DO_NOTHING, null=False)
+    usuario = models.ForeignKey(Usuario, related_name='cliente', on_delete=models.DO_NOTHING, null =False)
+    habitaciones = models.ManyToManyField(Habitacion, through='HabitacionReservada')
+    fechaInicio = models.DateField(null = False,blank = False)
+    fechaFin = models.DateField(null = False,blank = False)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
 
@@ -110,13 +112,35 @@ class Reserva(models.Model):
         verbose_name_plural = 'Reservas'
 
     def __str__(self):
-        return self.usuario
+        return f"{self.usuario} el {self.fechaInicio} hasta el {self.fechaFin}"
+
+class HabitacionReservada(models.Model):
+    id = models.AutoField(primary_key = True)
+    reserva = models.ForeignKey(Reserva, on_delete=models.DO_NOTHING)
+    habitacion = models.ForeignKey(Habitacion, on_delete=models.DO_NOTHING)
+    precioVenta = models.DecimalField(max_digits=20, decimal_places=2)
+    activo = models.BooleanField( default = True)
+    creado = models.DateField(auto_now = False,auto_now_add = True)
+
+    # Trigger para cambiar estado de la habitacion asignada
+    def save(self, *args, **kwargs):
+        habitacion=Habitacion.objects.get(id=self.habitacion.id)	
+        habitacion.reservada = True
+        habitacion.save()
+        return super(HabitacionReservada, self).save( *args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Habitacion Asignada'
+        verbose_name_plural = 'Habitaciones Asignadas'
+
+    def __str__(self):
+        return f"Habitacion:{self.habitacion}, Reserva: {self.reserva}"
 
 
 class Factura(models.Model):
     id = models.AutoField(primary_key = True)
     reserva = models.OneToOneField(Reserva,on_delete=models.DO_NOTHING)
-    total = models.DecimalField(max_digits=20, decimal_places=2)
+    fecha = models.DateField(null = False,blank = False)
     descuento = models.DecimalField(max_digits=20, decimal_places=2)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
@@ -126,5 +150,4 @@ class Factura(models.Model):
         verbose_name_plural = 'Facturas'
 
     def __str__(self):
-        return self.total
-
+        return f"{self.id} {self.fecha}"

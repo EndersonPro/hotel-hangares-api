@@ -1,16 +1,14 @@
-from django.contrib.auth.models import User, Group
+# from django.contrib.auth.models import User, Group
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-
-from .models import Usuario
-import threading
+from .models import Usuario, Habitacion, ImagenHabitacion, TipoHabitacion, Reserva, HabitacionReservada, Comodidad, Factura
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuario
-        fields = ['id','username', 'password', 'email','last_name','first_name',
+        fields = ['id','username','password','email','last_name','first_name',
                   'tipoUsuario', 'foto_perfil']
         extra_kwargs = {
             'password': {
@@ -18,12 +16,50 @@ class UsuarioSerializer(serializers.ModelSerializer):
             },
         }
 
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Group
-        fields = ['url', 'name']
+class ChangePasswordSerializer(serializers.Serializer):
 
-# class UsuarioSerializer(serializers.HyperlinkedModelSerializer):
-#     class Meta:
-#         model = Usuario
-#         fields = ['nombre', 'password', 'correo','imagen']
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+class TipoHabitacionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TipoHabitacion
+        fields = ['id', 'nombre', 'descripcion','activo','creado']
+
+class HabitacionSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Habitacion
+        fields = ['id','numero','tipoHabitacion','piso','descripcion','precio','reservada','activo','creado']
+
+class ImagenHabitacionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ImagenHabitacion
+        fields = ['id', 'imagen', 'habitacion', 'activo', 'creado']
+
+class ReservaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Reserva
+        fields = ['id', 'responsable', 'usuario', 'habitaciones', 'fechaInicio', 'fechaFin','activo','creado']
+
+class HabitacionReservadaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = HabitacionReservada
+        fields = ['id', 'reserva', 'habitacion', 'precioVenta', 'activo', 'creado']
+
+class ComodidadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comodidad
+        fields = ['id', 'habitaciones', 'nombre', 'descripcion','activo','creado']
+
+class FacturaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Factura
+        fields = ['id', 'reserva', 'fecha', 'descuento','activo','creado']
+
