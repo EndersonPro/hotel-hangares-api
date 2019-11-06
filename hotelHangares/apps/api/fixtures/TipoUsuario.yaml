@@ -1,15 +1,15 @@
 - model: api.TipoUsuario
   pk: 1
   fields:
-    nombre: John
-    descripcion: Lennon
+    nombre: Admin
+    descripcion: Es el administrador de los recepcionista
 - model: api.TipoUsuario
   pk: 2
   fields:
-    nombre: John
-    descripcion: Lennon
+    nombre: Recepcionista
+    descripcion: Es el encargado de atender en la recepcion a los clientes
 - model: api.TipoUsuario
   pk: 3
   fields:
-    nombre: John
-    descripcion: Lennon
+    nombre: Cliente
+    descripcion: Es quien solicita el servicio en el hotel

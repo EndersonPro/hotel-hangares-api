@@ -1,18 +1,26 @@
 # from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, status
-from .serializers import  UsuarioSerializer, ChangePasswordSerializer, HabitacionSerializer, ImagenHabitacionSerializer, ReservaSerializer, HabitacionReservadaSerializer, ComodidadSerializer, TipoHabitacionSerializer, FacturaSerializer
+from .serializers import UsuarioSerializer, ChangePasswordSerializer, HabitacionSerializer, ImagenHabitacionSerializer, ReservaSerializer, HabitacionReservadaSerializer, ComodidadSerializer, TipoHabitacionSerializer, FacturaSerializer
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
+from rest_framework.decorators import action
 from .models import Usuario, Habitacion, ImagenHabitacion, Reserva, HabitacionReservada, Comodidad, TipoHabitacion, Factura
+
+from .permissions import IsReceptionist, IsClient, IsAdmin
 
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes_by_action = {
+        'create': [AllowAny],
+        'list': [IsAdmin],
+        'update': [IsAdmin | IsClient]
+    }
+    # permission_classes = (IsAuthenticated,)
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
 
@@ -28,6 +36,15 @@ class UsuarioViewSet(viewsets.ModelViewSet):
             serializer.save(password=password)
         else:
             serializer.save()
+
+    def get_permissions(self):
+        try:
+            # return permission_classes depending on `action`
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
+        except KeyError:
+            # action is not set return default permission_classes
+            return [permission() for permission in self.permission_classes]
+
 
 class ChangePasswordView(viewsets.ModelViewSet):
 
@@ -55,11 +72,13 @@ class ChangePasswordView(viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class TipoHabitacionViewSet(viewsets.ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
     queryset = TipoHabitacion.objects.all()
     serializer_class = TipoHabitacionSerializer
+
 
 class HabitacionViewSet(viewsets.ModelViewSet):
 
@@ -68,13 +87,14 @@ class HabitacionViewSet(viewsets.ModelViewSet):
     serializer_class = HabitacionSerializer
 
     def get_queryset(self):
-        if "reservada" in self.request.data.keys():  
+        if "reservada" in self.request.data.keys():
             if "tipoHabitacion" in self.request.data.keys():
-                return Habitacion.objects.filter(reservada = self.request.data["reservada"],tipoHabitacion = self.request.data["tipoHabitacion"])
+                return Habitacion.objects.filter(reservada=self.request.data["reservada"], tipoHabitacion=self.request.data["tipoHabitacion"])
             else:
-                return Habitacion.objects.filter(reservada = self.request.data["reservada"])
+                return Habitacion.objects.filter(reservada=self.request.data["reservada"])
         else:
             return Habitacion.objects.all()
+
 
 class ImagenHabitacionViewSet(viewsets.ModelViewSet):
 
@@ -84,9 +104,10 @@ class ImagenHabitacionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if "habitacion" in self.request.data.keys():
-            return ImagenHabitacion.objects.filter(habitacion = self.request.data['habitacion'])
+            return ImagenHabitacion.objects.filter(habitacion=self.request.data['habitacion'])
         else:
             return ImagenHabitacion.objects.all()
+
 
 class ReservaViewSet(viewsets.ModelViewSet):
 
@@ -96,10 +117,11 @@ class ReservaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if "fechaInicio" in self.request.data.keys() and "fechaFin" in self.request.data.keys():
-            return Reserva.objects.filter(Q(fechaInicio__range= [self.request.data["fechaInicio"], self.request.data["fechaFin"]]) | 
-                                          Q(fechaFin__range= [self.request.data["fechaInicio"], self.request.data["fechaFin"]]))
+            return Reserva.objects.filter(Q(fechaInicio__range=[self.request.data["fechaInicio"], self.request.data["fechaFin"]]) |
+                                          Q(fechaFin__range=[self.request.data["fechaInicio"], self.request.data["fechaFin"]]))
         else:
             return Reserva.objects.all()
+
 
 class HabitacionReservadaViewSet(viewsets.ModelViewSet):
 
@@ -109,15 +131,17 @@ class HabitacionReservadaViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if "reserva" in self.request.data.keys():
-            return HabitacionReservada.objects.filter(reserva = self.request.data['reserva'])
+            return HabitacionReservada.objects.filter(reserva=self.request.data['reserva'])
         else:
             return HabitacionReservada.objects.all()
+
 
 class ComodidadViewSet(viewsets.ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
     queryset = Comodidad.objects.all()
     serializer_class = ComodidadSerializer
+
 
 class FacturaViewSet(viewsets.ModelViewSet):
 
