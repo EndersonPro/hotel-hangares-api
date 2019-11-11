@@ -28,10 +28,11 @@ class TipoHabitacionSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre', 'descripcion','activo','creado']
 
 class HabitacionSerializer(serializers.ModelSerializer):
-    
+    tipoHabitacion = TipoHabitacionSerializer()
     class Meta:
         model = Habitacion
         fields = ['id','numero','tipoHabitacion','piso','descripcion','precio','reservada','activo','creado']
+
 
 class ImagenHabitacionSerializer(serializers.ModelSerializer):
 
@@ -40,7 +41,7 @@ class ImagenHabitacionSerializer(serializers.ModelSerializer):
         fields = ['id', 'imagen', 'habitacion', 'activo', 'creado']
 
 class ReservaSerializer(serializers.ModelSerializer):
-
+    habitaciones = HabitacionSerializer(many=True)
     class Meta:
         model = Reserva
         fields = ['id', 'responsable', 'usuario', 'habitaciones', 'fechaInicio', 'fechaFin','activo','creado']

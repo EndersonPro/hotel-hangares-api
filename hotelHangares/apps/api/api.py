@@ -82,7 +82,7 @@ class TipoHabitacionViewSet(viewsets.ModelViewSet):
 
 class HabitacionViewSet(viewsets.ModelViewSet):
 
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     queryset = Habitacion.objects.all()
     serializer_class = HabitacionSerializer
 
