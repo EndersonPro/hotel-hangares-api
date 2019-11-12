@@ -1,12 +1,13 @@
 # from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, status
-from .serializers import UsuarioSerializer, ChangePasswordSerializer, HabitacionSerializer, ImagenHabitacionSerializer, ReservaSerializer, HabitacionReservadaSerializer, ComodidadSerializer, TipoHabitacionSerializer, FacturaSerializer
+from .serializers import UsuarioSerializer, ChangePasswordSerializer, ReadHabitacionSerializer,WriteHabitacionSerializer, ImagenHabitacionSerializer, WriteReservaSerializer, ReadReservaSerializer, HabitacionReservadaSerializer, ComodidadSerializer, TipoHabitacionSerializer, FacturaSerializer
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
 from rest_framework.decorators import action
 from .models import Usuario, Habitacion, ImagenHabitacion, Reserva, HabitacionReservada, Comodidad, TipoHabitacion, Factura
+from .mixins import ReadWriteSerializerMixin
 
 from .permissions import IsReceptionist, IsClient, IsAdmin
 
@@ -80,11 +81,17 @@ class TipoHabitacionViewSet(viewsets.ModelViewSet):
     serializer_class = TipoHabitacionSerializer
 
 
-class HabitacionViewSet(viewsets.ModelViewSet):
+class HabitacionViewSet(ReadWriteSerializerMixin, viewsets.ModelViewSet):
 
-    # permission_classes = (IsAuthenticated,)
+    permission_classes_by_action = {
+        'create': [IsAdmin],
+        'list': [AllowAny],
+        'update': [IsAdmin]
+    }
+    # permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Habitacion.objects.all()
-    serializer_class = HabitacionSerializer
+    read_serializer_class = ReadHabitacionSerializer
+    write_serializer_class = WriteHabitacionSerializer
 
     def get_queryset(self):
         reservada = self.request.query_params.get('reservada')
@@ -98,25 +105,39 @@ class HabitacionViewSet(viewsets.ModelViewSet):
         else:
             return Habitacion.objects.all()
 
+    def get_permissions(self):
+        try:
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
+        except KeyError:
+            return [permission() for permission in self.permission_classes]
+
 
 class ImagenHabitacionViewSet(viewsets.ModelViewSet):
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = ImagenHabitacion.objects.all()
     serializer_class = ImagenHabitacionSerializer
 
     def get_queryset(self):
-        if "habitacion" in self.request.data.keys():
-            return ImagenHabitacion.objects.filter(habitacion=self.request.data['habitacion'])
+        habitacion = self.request.query_params.get('habitacion')
+        if habitacion:
+            return ImagenHabitacion.objects.filter(habitacion=habitacion)
         else:
             return ImagenHabitacion.objects.all()
 
 
-class ReservaViewSet(viewsets.ModelViewSet):
+class ReservaViewSet(ReadWriteSerializerMixin,viewsets.ModelViewSet):
+
+    permission_classes_by_action = {
+        'create': [IsReceptionist|IsClient],
+        'list': [AllowAny],
+        'update': [IsReceptionist]
+    }
 
     # permission_classes = (IsAuthenticated,)
     queryset = Reserva.objects.all()
-    serializer_class = ReservaSerializer
+    read_serializer_class = ReadReservaSerializer
+    write_serializer_class = WriteReservaSerializer
 
     def get_queryset(self):
         fechaInicio = self.request.query_params.get('fechaInicio')
@@ -127,6 +148,12 @@ class ReservaViewSet(viewsets.ModelViewSet):
         else:
             return Reserva.objects.all()
 
+    def get_permissions(self):
+        try:
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
+        except KeyError:
+            return [permission() for permission in self.permission_classes]
+
 
 class HabitacionReservadaViewSet(viewsets.ModelViewSet):
 
@@ -135,8 +162,9 @@ class HabitacionReservadaViewSet(viewsets.ModelViewSet):
     serializer_class = HabitacionReservadaSerializer
 
     def get_queryset(self):
-        if "reserva" in self.request.data.keys():
-            return HabitacionReservada.objects.filter(reserva=self.request.data['reserva'])
+        reserva = self.request.query_params.get('reserva')
+        if reserva:
+            return HabitacionReservada.objects.filter(reserva=reserva)
         else:
             return HabitacionReservada.objects.all()
 
@@ -150,6 +178,17 @@ class ComodidadViewSet(viewsets.ModelViewSet):
 
 class FacturaViewSet(viewsets.ModelViewSet):
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes_by_action = {
+        'create': [IsReceptionist|IsAdmin],
+        'list': [IsReceptionist|IsClient],
+        'update': [IsReceptionist|IsAdmin]
+    }
+
     queryset = Factura.objects.all()
     serializer_class = FacturaSerializer
+
+    def get_permissions(self):
+        try:
+            return [permission() for permission in self.permission_classes_by_action[self.action]]
+        except KeyError:
+            return [permission() for permission in self.permission_classes]
