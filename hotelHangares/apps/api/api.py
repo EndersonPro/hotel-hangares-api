@@ -89,11 +89,12 @@ class HabitacionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         reservada = self.request.query_params.get('reservada')
         tipoHabitacion = self.request.query_params.get('tipoHabitacion')
-        if reservada:  
-            if tipoHabitacion:
-                return Habitacion.objects.filter(reservada=reservada, tipoHabitacion=tipoHabitacion)
-            else:
-                return Habitacion.objects.filter(reservada=reservada)
+        if reservada and tipoHabitacion:
+            return Habitacion.objects.filter(reservada=reservada, tipoHabitacion=tipoHabitacion)
+        elif reservada:
+            return Habitacion.objects.filter(reservada=reservada) 
+        elif tipoHabitacion:
+            return Habitacion.objects.filter(tipoHabitacion=tipoHabitacion)
         else:
             return Habitacion.objects.all()
 
