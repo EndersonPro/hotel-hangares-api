@@ -41,6 +41,8 @@ class ImagenHabitacionSerializer(serializers.ModelSerializer):
         fields = ['id', 'imagen', 'habitacion', 'activo', 'creado']
 
 class ReservaSerializer(serializers.ModelSerializer):
+    responsable = UsuarioSerializer()
+    usuario = UsuarioSerializer()
     habitaciones = HabitacionSerializer(many=True)
     class Meta:
         model = Reserva

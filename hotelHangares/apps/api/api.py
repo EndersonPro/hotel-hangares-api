@@ -87,11 +87,13 @@ class HabitacionViewSet(viewsets.ModelViewSet):
     serializer_class = HabitacionSerializer
 
     def get_queryset(self):
-        if "reservada" in self.request.data.keys():
-            if "tipoHabitacion" in self.request.data.keys():
-                return Habitacion.objects.filter(reservada=self.request.data["reservada"], tipoHabitacion=self.request.data["tipoHabitacion"])
+        reservada = self.request.query_params.get('reservada')
+        tipoHabitacion = self.request.query_params.get('tipoHabitacion')
+        if reservada:  
+            if tipoHabitacion:
+                return Habitacion.objects.filter(reservada=reservada, tipoHabitacion=tipoHabitacion)
             else:
-                return Habitacion.objects.filter(reservada=self.request.data["reservada"])
+                return Habitacion.objects.filter(reservada=reservada)
         else:
             return Habitacion.objects.all()
 
@@ -111,14 +113,16 @@ class ImagenHabitacionViewSet(viewsets.ModelViewSet):
 
 class ReservaViewSet(viewsets.ModelViewSet):
 
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
 
     def get_queryset(self):
-        if "fechaInicio" in self.request.data.keys() and "fechaFin" in self.request.data.keys():
-            return Reserva.objects.filter(Q(fechaInicio__range=[self.request.data["fechaInicio"], self.request.data["fechaFin"]]) |
-                                          Q(fechaFin__range=[self.request.data["fechaInicio"], self.request.data["fechaFin"]]))
+        fechaInicio = self.request.query_params.get('fechaInicio')
+        fechaFin = self.request.query_params.get('fechaFin')
+        if fechaInicio  and fechaFin:
+            return Reserva.objects.filter(Q(fechaInicio__range=[fechaInicio, fechaFin]) |
+                                          Q(fechaFin__range=[fechaInicio, fechaFin]))
         else:
             return Reserva.objects.all()
 
