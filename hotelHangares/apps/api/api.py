@@ -18,7 +18,7 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     """
     permission_classes_by_action = {
         'create': [AllowAny],
-        'list': [IsAdmin],
+        'list': [IsAdmin|IsReceptionist],
         'update': [IsAdmin | IsClient]
     }
     # permission_classes = (IsAuthenticated,)
