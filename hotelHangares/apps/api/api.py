@@ -86,7 +86,7 @@ class HabitacionViewSet(ReadWriteSerializerMixin, viewsets.ModelViewSet):
     permission_classes_by_action = {
         'create': [IsAdmin],
         'list': [AllowAny],
-        'update': [IsAdmin]
+        'update': [IsAdmin|IsReceptionist]
     }
     # permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Habitacion.objects.all()
