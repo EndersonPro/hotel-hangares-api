@@ -38,6 +38,13 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
 
+    def get_queryset(self):
+        cedula = self.request.query_params.get('cedula')
+        if cedula:
+            return Usuario.objects.filter(cedula=cedula)
+        else:
+            return Usuario.objects.all()
+
     def get_permissions(self):
         try:
             # return permission_classes depending on `action`
