@@ -127,10 +127,16 @@ class HabitacionReservada(models.Model):
 
     # Trigger para cambiar estado de la habitacion asignada
     def save(self, *args, **kwargs):
-        habitacion=Habitacion.objects.get(id=self.habitacion.id)	
+        habitacion=Habitacion.objects.get(id=self.habitacion.id)
         habitacion.reservada = True
         habitacion.save()
         return super(HabitacionReservada, self).save( *args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        habitacion=Habitacion.objects.get(id=self.habitacion.id)
+        habitacion.reservada = False
+        habitacion.save()
+        return super(HabitacionReservada, self).delete( *args, **kwargs)
 
     class Meta:
         verbose_name = 'Habitacion Asignada'
