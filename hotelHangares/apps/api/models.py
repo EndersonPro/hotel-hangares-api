@@ -28,10 +28,10 @@ class Usuario(AbstractUser):
     # correo = models.EmailField(blank = False, null = False)
     # activo = models.BooleanField(default = True)
     # creado = models.DateField(auto_now = False,auto_now_add = True)
-
+    cedula = models.IntegerField(blank = False, null=False, default=123, unique=True)
     tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.DO_NOTHING, null=False, default=3)
     foto_perfil = models.URLField(max_length = 255, blank = False, null= False, default="https://www.info-computer.com/blog/wp-content/uploads/2018/04/fotoinicio.jpg")
-
+    phone = models.IntegerField(blank = True, null=True)
     class Meta:
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
