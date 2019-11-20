@@ -13,5 +13,4 @@ class IsClient(BasePermission):
 
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
-        # print(request.user.tipoUsuario.id is 1)
         return request.user and request.user.tipoUsuario.id is 1
