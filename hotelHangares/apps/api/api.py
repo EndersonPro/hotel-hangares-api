@@ -103,7 +103,17 @@ class HabitacionViewSet(ReadWriteSerializerMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         reservada = self.request.query_params.get('reservada')
         tipoHabitacion = self.request.query_params.get('tipoHabitacion')
-        if reservada and tipoHabitacion:
+        fechaInicio = self.request.query_params.get('fechaInicio')
+        fechaFin = self.request.query_params.get('fechaFin')
+        if fechaInicio and fechaFin:
+            reservas = Reserva.objects.all().filter(Q(fechaInicio__range=[fechaInicio, fechaFin]) & Q(estado = 1) |
+                                          Q(fechaFin__range=[fechaInicio, fechaFin]) & Q(estado = 1))
+            keys = []
+            for r in reservas.iterator():
+                for h in r.habitaciones.iterator():
+                    keys.append(h.id)
+            return Habitacion.objects.exclude(id__in=keys)
+        elif reservada and tipoHabitacion:
             return Habitacion.objects.filter(reservada=reservada, tipoHabitacion=tipoHabitacion)
         elif reservada:
             return Habitacion.objects.filter(reservada=reservada) 
@@ -150,8 +160,8 @@ class ReservaViewSet(ReadWriteSerializerMixin,viewsets.ModelViewSet):
         fechaInicio = self.request.query_params.get('fechaInicio')
         fechaFin = self.request.query_params.get('fechaFin')
         if fechaInicio  and fechaFin:
-            return Reserva.objects.filter(Q(fechaInicio__range=[fechaInicio, fechaFin]) |
-                                          Q(fechaFin__range=[fechaInicio, fechaFin]))
+            return Reserva.objects.filter(Q(fechaInicio__range=[fechaInicio, fechaFin]) & Q(estado = 1) |
+                                          Q(fechaFin__range=[fechaInicio, fechaFin]) & Q(estado = 1))
         else:
             return Reserva.objects.all()
 
