@@ -100,6 +100,21 @@ class Comodidad(models.Model):
     def __str__(self):
         return self.nombre
     
+class EstadoReserva(models.Model):
+    id = models.AutoField(primary_key = True)
+    nombre = models.CharField(max_length = 100, null = False,blank = False)
+    descripcion = models.CharField(max_length = 110, blank = False, null = False)
+    activo = models.BooleanField(default = True)
+    creado = models.DateField(auto_now = False,auto_now_add = True)
+
+    class Meta:
+        verbose_name = 'Estado de Reserva'
+        verbose_name_plural = 'Estados de Reservas'
+
+    def __str__(self):
+        return self.nombre
+
+
 class Reserva(models.Model):
     id = models.AutoField(primary_key = True)
     responsable = models.ForeignKey(Usuario, related_name='responsable',on_delete=models.DO_NOTHING, null=False)
@@ -107,6 +122,7 @@ class Reserva(models.Model):
     habitaciones = models.ManyToManyField(Habitacion, through='HabitacionReservada')
     fechaInicio = models.DateField(null = False,blank = False)
     fechaFin = models.DateField(null = False,blank = False)
+    estado = models.ForeignKey(EstadoReserva, on_delete = models.DO_NOTHING, null = True)
     activo = models.BooleanField( default = True)
     creado = models.DateField(auto_now = False,auto_now_add = True)
 

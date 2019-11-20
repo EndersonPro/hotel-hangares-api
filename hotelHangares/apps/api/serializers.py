@@ -52,13 +52,13 @@ class ReadReservaSerializer(serializers.ModelSerializer):
     habitaciones = ReadHabitacionSerializer(many=True)
     class Meta:
         model = Reserva
-        fields = ['id', 'responsable', 'usuario', 'habitaciones', 'fechaInicio', 'fechaFin','activo','creado']
+        fields = ['id', 'responsable', 'usuario', 'habitaciones', 'fechaInicio', 'fechaFin','estado','activo','creado']
 
 class WriteReservaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reserva
-        fields = ['id', 'responsable', 'usuario', 'habitaciones', 'fechaInicio', 'fechaFin','activo','creado']
+        fields = ['id', 'responsable', 'usuario', 'habitaciones', 'fechaInicio', 'fechaFin','estado','activo','creado']
 
 class HabitacionReservadaSerializer(serializers.ModelSerializer):
 
